@@ -1,0 +1,31 @@
+menu "SimSift Bridge"
+
+config SIMSIFT_BOARD_NAME
+    string "Board name"
+    default "unknown"
+
+config SIMSIFT_MODEM_TX
+    int "Modem UART TX GPIO"
+    default 27
+
+config SIMSIFT_MODEM_RX
+    int "Modem UART RX GPIO"
+    default 26
+
+config SIMSIFT_MODEM_PWRKEY
+    int "Modem PWRKEY GPIO"
+    default 4
+
+config SIMSIFT_MODEM_PWR_EN
+    int "Modem power enable GPIO (-1 = unused)"
+    default -1
+
+config SIMSIFT_MODEM_RST
+    int "Modem reset GPIO (-1 = unused)"
+    default -1
+
+config SIMSIFT_MODEM_BAUD
+    int "Modem UART baud rate"
+    default 9600
+
+endmenu

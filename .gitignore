@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Firmware build
+firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.defaults
+firmware/sdkconfig.old
+
+# Reports
+*.json
+!requirements.txt
+
+# IDE
+.vscode/
+.idea/
