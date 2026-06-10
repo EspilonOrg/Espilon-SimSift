@@ -37,7 +37,7 @@ SMS, USSD queries, call-forward detection, and continuous anomaly monitoring.
 ## Install
 
 ```bash
-git clone https://github.com/Espilon-Org/Espilon-SimSift
+git clone https://github.com/EspilonOrg/Espilon-SimSift
 cd Espilon-SimSift
 pip install -r requirements.txt
 ```

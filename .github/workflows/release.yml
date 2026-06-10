@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build firmware (${{ matrix.board }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        board: [t-call, t-sim7070g]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.board }}
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.2.1
+          target: esp32
+          path: firmware
+          command: >
+            cp configs/${{ matrix.board }} sdkconfig.defaults &&
+            rm -f sdkconfig &&
+            idf.py build
+
+      - name: Rename binary
+        run: |
+          cp firmware/build/simsift-bridge.bin \
+             simsift-bridge-${{ matrix.board }}-${{ github.ref_name }}.bin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simsift-bridge-${{ matrix.board }}
+          path: simsift-bridge-${{ matrix.board }}-${{ github.ref_name }}.bin
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.bin
+          generate_release_notes: true
