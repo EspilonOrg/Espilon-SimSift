@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     name: Build firmware (${{ matrix.board }})
@@ -57,5 +60,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: SimSift ${{ github.ref_name }}
           files: dist/*.bin
           generate_release_notes: true
