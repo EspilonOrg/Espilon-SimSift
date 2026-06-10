@@ -7,7 +7,7 @@ import json
 import sys
 from .bridge import Bridge, BridgeError
 from .modem  import Modem
-from .        import modules
+from .        import modules, flash as _flash_mod
 from .ui      import (console, print_banner, print_board, print_section,
                       kv_table, operator_table, sms_list, watch_event,
                       ok, info, error)
@@ -173,6 +173,10 @@ def cmd_at(modem: Modem, args) -> None:
     console.print(f"[muted]{resp}[/]")
 
 
+def cmd_flash(args) -> None:
+    _flash_mod.run(board=args.board, port=args.port, baud=args.baud)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="simsift",
@@ -180,6 +184,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "examples:\n"
+            "  simsift flash --board t-call --port /dev/ttyUSB0\n"
             "  simsift -p /dev/ttyUSB0 identity\n"
             "  simsift -p /dev/ttyACM0 forensics -o report.json\n"
             "  simsift -p /dev/ttyUSB0 watch --interval 5\n"
@@ -187,7 +192,7 @@ def main():
             "  simsift -p /dev/ttyUSB0 scan\n"
         ),
     )
-    parser.add_argument("-p", "--port",  required=True,
+    parser.add_argument("-p", "--port",  default=None,
                         help="Serial port  e.g. /dev/ttyUSB0 or COM3")
     parser.add_argument("-b", "--baud",  type=int, default=115200)
     parser.add_argument("--pin",         default=None,
@@ -199,6 +204,15 @@ def main():
 
     sub = parser.add_subparsers(dest="command", required=True,
                                 metavar="command")
+
+    p_flash = sub.add_parser("flash",
+                              help="Download and flash firmware from latest GitHub Release")
+    p_flash.add_argument("--board", required=True, choices=_flash_mod.BOARDS,
+                         help="Target board  (t-call | t-sim7070g)")
+    p_flash.add_argument("--port", required=True,
+                         help="Serial port  e.g. /dev/ttyUSB0 or COM3")
+    p_flash.add_argument("--baud", type=int, default=460800,
+                         help="Flash baud rate  (default 460800)")
 
     sub.add_parser("status",
                    help="Full dashboard - identity · signal · SMS · forwards · operators")
@@ -235,6 +249,13 @@ def main():
 
     if not args.json and not args.no_banner:
         print_banner()
+
+    if args.command == "flash":
+        cmd_flash(args)
+        return
+
+    if not args.port:
+        parser.error("argument -p/--port is required for this command")
 
     try:
         with Bridge(args.port, args.baud) as bridge:
